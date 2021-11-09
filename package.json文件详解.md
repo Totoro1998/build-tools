@@ -18,16 +18,41 @@
 
 ![](/Users/totoro.fu/Library/Application%20Support/marktext/images/2021-11-03-14-49-02-image.png)
 
-指定版本号
+**依赖包版本号**
 
 1. 指定版本：比如"classnames": "2.2.5"，表示安装2.2.5的版本
 
-2.  波浪号~+指定版本：比如 "babel-plugin-import": "~1.1.0",表示安装1.1.x的最新版本（不低于1.1.0），但是不安装1.2.x，也就是说安装时不改变大版本号和次要版本号
+2. **"1.x" 、"1.X"、1.*"、"1"、"*"**,表示使用通配符的版本号。x、X、* 和 （空） 的含义相同，都表示可以匹配任何内容。
 
-3. ^+指定版本：比如 "antd": "^3.1.4",，表示安装3.1.4及以上的版本，但是不安装4.0.0，也就是说安装时不改变大版本号
+3. **"1.2.3-alpha.1"、"1.2.3-beta.1"、"1.2.3-rc.1"**
+   
+       alpha(α)：预览版，或者叫内部测试版；一般不向外部发布，会有很多bug；一般只有测试人员使用。
+       
+       beta(β)：测试版，或者叫公开测试版；这个阶段的版本会一直加入新的功能；在alpha版之后推出。
+       
+       rc(release candidate)：最终测试版本；可能成为最终产品的候选版本，如果未出现问题则可发布成为正式版本。
 
-#### **files**
-
+4.  波浪号~+指定版本：比如 "babel-plugin-import": "~1.1.0",表示安装1.1.x的最新版本（不低于1.1.0），但是不安装1.2.x，也就是说安装时不改变大版本号和次要版本号
+   
+   1. ^+指定版本：比如 "antd": "^3.1.4",，表示安装3.1.4及以上的版本，但是不安装4.0.0，也就是说安装时不改变大版本号,表示兼容补丁和小版本更新的版本号。官方的定义是“能够兼容除了最左侧的非 0 版本号之外的其他变化”
+   
+   **依赖包版本管理**
+   
+   1、在大版本相同的前提下，如果一个模块在`package.json`中的小版本要**大于**`package-lock.json`中的小版本，则在执行`npm install`时，会将该模块更新到大版本下的最新的版本，并将版本号更新至`package-lock.json`。如果**小于**，则被`package-lock.json`中的版本锁定
+   
+   2、如果一个模块在`package.json`和`package-lock.json`中的大版本不相同，则在执行`npm install`时，都将根据`package.json`中大版本下的最新版本进行更新，并将版本号更新至`package-lock.json`
+   
+   3、如果一个模块在`package.json`中有记录，而在`package-lock.json`中无记录，执行`npm install`后，则会在`package-lock.json`生成该模块的详细记录。同理，一个模块在`package.json`中无记录，而在`package-lock.json`中有记录，执行`npm install`后，则会在`package-lock.json`删除该模块的详细记录
+   
+   4、如果要更新某个模块大版本下的最新版本（升级小版本号），请执行如下命令：npm update packageName
+   
+   5、如果要更新到指定版本号（升级大版本号），请执行如下命令：npm install packageName@x.x.x
+   
+   6、卸载某个模块，请执行如下命令：npm uninstall packageName
+   
+   7、安装模块的确切版本：npm install packageName -D/S --save-exact # 安装的版本号将会是精准的，版本号前面不会出现^~字符
+   
+   #### **files**
 - 是一个可选字段，是一个匹配文件的正则数组，描述了当您的包作为依赖项安装时要包含的文件条目
 
 - 语法和.gitignore相同，但是作用相反
@@ -66,6 +91,8 @@ Webpack在进行项目构建时，有一个target选项，默认为Web，即构�
 
 #### **bin**
 
+软链接（符号链接）是一类特殊的可执行文件， 其包含有一条以绝对路径或者相对路径的形式指向其它文件或者目录的引用。在`bin`目录下执行`ll`指令可以查看具体的软链接指向。在对链接文件进行读或写操作的时候，系统会自动把该操作转换为对源文件的操作，但删除链接文件时，系统仅仅删除链接文件，而不删除源文件本身。
+
 - 在全局模式下，可执行文件在 Unix 上链接到 {prefix}/bin，或在 Windows 上直接链接到 {prefix}。确保路径是在终端的 PATH 环境中以运行它们
 
 - 在本地模式下，可执行文件链接到 ./node_modules/.bin 以便它们可用于通过 npm 运行的脚本。 （例如，当您运行 npm test 时，测试运行器将位于路径中。)
@@ -83,6 +110,10 @@ Webpack在进行项目构建时，有一个target选项，默认为Web，即构�
 是包含在 package中不同生命周期中不同时间运行的脚本命令的dictionary，The key is the lifecycle event, and the value is the command to run at that point
 
 除了运行基本的scripts命令，还可以结合pre和post完成前置和后续操作
+
+**PATH环境变量**
+
+在`terminal`中执行命令时，**命令会在`PATH`环境变量里包含的路径中去寻找相同名字的可执行文件**。局部安装的包只在`./node_modules/.bin`中注册了它们的可执行文件，不会被包含在`PATH`环境变量中，这个时候在`terminal`中输入命令将会报无法找到的错误
 
 #### **config**
 
@@ -217,7 +248,3 @@ gitHooks用来定义一个钩子，在提交（commit）之前执行ESlint检查
 #### browserslist
 
 browserslist字段用来告知支持哪些浏览器及版本。Babel、Autoprefixer 和其他工具会用到它，以将所需的 polyfill 和 fallback 添加到目标浏览器。
-
-
-
-

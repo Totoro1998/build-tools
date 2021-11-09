@@ -66,6 +66,22 @@ npm config edit
 
 ### npm dist-tag
 
+```
+npm dist-tag add <pkg>@<version> [<tag>]
+npm dist-tag rm <pkg> <tag>
+npm dist-tag ls [<pkg>]
+
+aliases: dist-tags
+```
+
+Add, remove, and enumerate(枚举) distribution tags on a package
+
+A tag can be used when installing packages as a reference to a version instead of using a specific version number
+
+Publishing a package sets the `latest` tag to the published version unless the `--tag` option is used. For example, `npm publish --tag=beta`
+
+By default, `npm install <pkg>` (without any `@<version>` or `@<tag>` specifier) installs the `latest` tag.
+
 ### npm docs
 
 ### npm doctor
@@ -79,6 +95,14 @@ npm config edit
 ### npx
 
 从本地或远程npm包运行命令
+
+**`npx`的原理很简单，就是运行的时候，会到`./node_modules/.bin`路径和环境变量`$PATH`里面，检查命令是否存在**
+
+由于`npx`会检查环境变量`$PATH`，所以系统命令也可以调用。
+
+注意，`Bash`内置的命令不在`$PATH`里面，所以不能用。比如，`cd`是`Bash`命令，因此就不能用`npx cd`。
+
+**除了调用项目内部包，`npx`还可以从`npm`仓库下载包到本地全局，使用完以后再删除。也就是说，可以使用`npx`来使用你本地没有安装过但是存在`npm`仓库上的包**
 
 - --package 选项指定的任何包都将在执行命令的 PATH 中提供，以及任何本地安装的包可执行文件,--package 选项可以多次指定，以在所有指定的包都可用的环境中执行提供的命令
 
@@ -140,6 +164,14 @@ npm init <initializer> 可用于设置新的或现有的 npm 包，在这种情�
 
 您还可以使用 -y/--yes 完全跳过问卷。如果传递--scope，它将创建一个scope包
 
+`initializer`在这里是一个名为`create-<initializer>`的`npm`包，该包将由`npx`来安装，然后执行其`package.json`中`bin`属性对应的脚本，会创建或更新`package.json`并运行一些与初始化相关的操作。
+
+`npm init <initializer>`时转换成`npx`命令的规则为：
+
+- `npm init foo` -> `npx create-foo`
+- `npm init @usr/foo` -> `npx @usr/create-foo`
+- `npm init @usr` -> `npx @usr/create`
+
 Create a new React-based project using [`create-react-app`](https://npm.im/create-react-app):
 
     $ npm init react-app ./my-react-app
@@ -193,7 +225,6 @@ By default, only the direct dependencies of the root project and direct dependen
 
 默认情况下，npm will publish to the public registry. This can be overridden by specifying a different default registry or using a [`scope`](https://docs.npmjs.com/cli/v7/using-npm/scope) in the name (see [`package.json`](https://docs.npmjs.com/cli/v7/configuring-npm/package-json))
 
-    
     npm publish [<tarball>|<folder>] [--tag <tag>] [--access <public|restricted>] [--otp otpcode] [--dry-run]
     
     Publishes '.' if no argument supplied
@@ -246,10 +277,6 @@ env 脚本是一个特殊的内置命令，可用于列出脚本在运行时可�
 npm run 将 NODE 环境变量设置为执行 npm 的node可执行文件
 
 如果您尝试在没有 node_modules 目录的情况下运行脚本并且失败了，您将收到运行 npm install 的警告，以防万一您忘记了
-
-
-
-
 
 npm install-ci-test
 
@@ -315,12 +342,12 @@ npm unstart
 
 更新包，此命令会将列出的所有包更新为最新版本，它还将安装缺少的软件包。
 
-npm version
+### npm version
+
+**在`git`环境中，执行`npm version`修改完版本号以后，还会默认执行`git add`->`git commit`->`git tag`操作**
 
 npm view
 
 ### **npm whoami**
 
 显示npm用户名
-
-
